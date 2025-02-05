@@ -1,1 +1,37 @@
-<p>change-manager works!</p>
+<div class="container">
+  <header class="header">
+    <h2 mat-dialog-title>Select Reporting Manager</h2>
+    <button mat-icon-button (click)="dialogRef.close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+  <mat-dialog-content>
+    <form>
+      <mat-form-field class="form__field" appearance="outline">
+        <input
+          placeholder="Search Manager"
+          matInput
+          [formControl]="manager"
+          [matAutocomplete]="auto"
+        />
+        <mat-autocomplete
+          autoActiveFirstOption
+          autoSelectActiveOption
+          hideSingleSelectionIndicator
+          [displayWith]="displayOption"
+          #auto="matAutocomplete"
+        >
+          <mat-option
+            *ngFor="let option of filteredOptions | async"
+            [value]="option"
+            >{{ option.name }}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions class="actions">
+    <button mat-raised-button color="primary" (click)="onSave()">Save</button>
+    <button mat-raised-button (click)="dialogRef.close()">Cancel</button>
+  </mat-dialog-actions>
+</div>

@@ -1,0 +1,25 @@
+.container {
+  width: 60vw;
+  padding: 10px;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    align-items: center;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+
+    &__filed {
+      width: 100%;
+    }
+  }
+
+  .actions {
+    display: flex;
+    justify-content: center;
+  }
+}

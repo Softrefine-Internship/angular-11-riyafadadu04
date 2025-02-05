@@ -1,59 +1,79 @@
-<div *ngFor="let level of treeLevels; let levelIndex = index" class="main-container">
-  <div class="employee">
-    <div *ngFor="let empId of level">
-      <mat-card (click)="toggleSubordinates(empId)" class="employee__card">
-        <mat-card-header class="employee__header">
-          <img
-            mat-card-avatar
-            class="employee__image"
-            [src]="getEmployeeDetails(empId)?.imageUrl"
-          />
-          <mat-card-title class="employee__name">{{
-            getEmployeeDetails(empId)?.name
-          }}</mat-card-title>
-          <mat-card-subtitle class="employee__designation">{{
-            getEmployeeDetails(empId)?.designation
-          }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="employee__content">
-          <p class="employee__email">
-            Email: {{ getEmployeeDetails(empId)?.email }}
-          </p>
-          <p *ngIf="getEmployeeDetails(empId)?.managerId">
-            Manager Id: {{ getEmployeeDetails(empId)?.managerId }}
-          </p>
-          <p>
-            Subordinates:
-            {{ getEmployeeDetails(empId)?.subordinates?.length || 0 }}
-          </p>
-        </mat-card-content>
-        <mat-card-actions>
-          <button
-            mat-button
-            color="primary"
-            [disabled]="getEmployeeDetails(empId)?.subordinates?.length === 5"
-            (click)="openAddSubordinateDialog(empId, $event)"
-          >
-            Add
-          </button>
-          <button
-            mat-button
-            color="warn"
-            [disabled]="getEmployeeDetails(empId)?.subordinates"
-            (click)="openRemoveDialog(empId, $event)"
-          >
-            Remove
-          </button>
-          <button
-            mat-button
-            color="accent"
-            *ngIf="!getEmployeeDetails(empId)?.managerId"
-            (click)="openChangeManagerDialog(empId, $event)"
-          >
-            Change
-          </button>
-        </mat-card-actions>
-      </mat-card>
+<div class="main-container">
+  <div *ngFor="let level of treeLevels; let levelIndex = index">
+    <span
+      class="line line--h"
+      *ngIf="levelIndex > 0"
+      [@horizontalExpand]
+    ></span>
+    <div class="employee">
+      <div class="employee__wrapper" *ngFor="let empId of level">
+        <span
+          class="line line--v"
+          *ngIf="getEmployeeDetails(empId)?.managerId"
+          [@expandLine]
+        ></span>
+        <mat-card (click)="toggleSubordinates(empId)" class="employee__card">
+          <mat-card-header class="employee__header">
+            <img
+              mat-card-avatar
+              class="employee__image"
+              [src]="getEmployeeDetails(empId)?.imageUrl"
+            />
+            <mat-card-title class="employee__name">{{
+              getEmployeeDetails(empId)?.name
+            }}</mat-card-title>
+            <mat-card-subtitle class="employee__designation">{{
+              getEmployeeDetails(empId)?.designation
+            }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content class="employee__content">
+            <p class="employee__email">
+              Email: {{ getEmployeeDetails(empId)?.email }}
+            </p>
+            <p *ngIf="getEmployeeDetails(empId)?.managerId">
+              Manager Id: {{ getEmployeeDetails(empId)?.managerId }}
+            </p>
+            <p>
+              Subordinates:
+              {{ getEmployeeDetails(empId)?.subordinates?.length || 0 }}
+            </p>
+          </mat-card-content>
+          <mat-card-actions class="employee__actions">
+            <button
+              mat-flat-button
+              color="primary"
+              [disabled]="getEmployeeDetails(empId)?.subordinates?.length === 5"
+              (click)="openAddSubordinateDialog(empId, $event)"
+            >
+              Add
+            </button>
+            <button
+              mat-flat-button
+              color="warn"
+              [disabled]="getEmployeeDetails(empId)?.subordinates?.length !== 0"
+              (click)="openRemoveDialog(empId, $event)"
+            >
+              Remove
+            </button>
+            <button
+              mat-flat-button
+              color="accent"
+              *ngIf="!getEmployeeDetails(empId)?.managerId"
+              (click)="openChangeManagerDialog(empId, $event)"
+            >
+              Change
+            </button>
+          </mat-card-actions>
+        </mat-card>
+        <span
+          class="line line--v"
+          *ngIf="
+            getEmployeeDetails(empId)?.isExpanded &&
+            getEmployeeDetails(empId)?.subordinates?.length !== 0
+          "
+          [@expandLine]
+        ></span>
+      </div>
     </div>
   </div>
 </div>

@@ -1,0 +1,24 @@
+.container {
+    width: 40vw;
+    padding: 10px;
+  
+    .header {
+      display: flex;
+      justify-content: space-between;
+      width: 100%;
+      align-items: center;
+    }
+  
+    .content{
+      text-align: center;
+    }
+
+    .form__field{
+        width: 100%;
+    }
+  
+    .actions {
+      display: flex;
+      justify-content: center;
+    }
+  }

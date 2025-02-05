@@ -5,11 +5,32 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddSubordinateComponent } from './add-subordinate/add-subordinate.component';
 import { RemoveEmployeeComponent } from './remove-employee/remove-employee.component';
 import { ChangeManagerComponent } from './change-manager/change-manager.component';
+import { animate, style, transition, trigger } from '@angular/animations';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.scss'],
+  animations: [
+    trigger('fadeIn', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('300ms ease-in', style({ opacity: 1 })),
+      ]),
+    ]),
+    trigger('expandLine', [
+      transition(':enter', [
+        style({ width: '0px', opacity: 0 }),
+        animate('300ms ease-out', style({ width: '2px', opacity: 1 })),
+      ]),
+    ]),
+    trigger('horizontalExpand', [
+      transition(':enter', [
+        style({ width: '0px', opacity: 0 }),
+        animate('300ms ease-out', style({ width: '100%', opacity: 1 })),
+      ]),
+    ]),
+  ],
 })
 export class AppComponent implements OnInit {
   employees: Employee[] = [];
@@ -24,12 +45,17 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.employeeService.getEmployees().subscribe((data) => {
       this.employees = data;
-      const manager = this.employees.find((e) => !e.managerId);
-      if (manager) {
-        this.treeLevels.push([manager.id]);
-        this.hierarchy = this.buildHierarchy(manager.id);
-      }
+      this.updateTree();
     });
+  }
+
+  updateTree() {
+    this.treeLevels = [];
+    const manager = this.employees.find((e) => !e.managerId);
+    if (manager) {
+      this.treeLevels.push([manager.id]);
+      this.hierarchy = this.buildHierarchy(manager.id);
+    }
   }
 
   buildHierarchy(managerId: number | null): Employee[] {
@@ -42,18 +68,33 @@ export class AppComponent implements OnInit {
 
   toggleSubordinates(empId: number): void {
     const employee = this.getEmployeeDetails(empId);
-    if (employee) {
+    if (!employee) return;
+
+    const index = this.treeLevels.findIndex((level) => level.includes(empId));
+
+    employee.isExpanded = !employee.isExpanded;
+
+    this.treeLevels[index]?.forEach((id) => {
+      if (id !== empId) {
+        const otherEmp = this.getEmployeeDetails(id);
+        if (otherEmp) otherEmp.isExpanded = false;
+      }
+    });
+
+    this.treeLevels
+      .slice(index + 1)
+      .flat()
+      .forEach((id) => {
+        const emp = this.getEmployeeDetails(id);
+        if (emp) emp.isExpanded = false;
+      });
+
+    this.treeLevels.splice(index + 1);
+
+    if (employee.isExpanded) {
       const subordinates = this.getSubordinates(employee.id);
-      employee.isExpanded = !employee.isExpanded;
-      if (employee.isExpanded) {
+      if (subordinates.length > 0) {
         this.treeLevels.push(subordinates.map((sub) => sub.id));
-        console.log(this.treeLevels);
-      } else {
-        const index = this.treeLevels.findIndex((level) =>
-          level.includes(empId)
-        );
-        this.treeLevels.splice(index + 1, this.treeLevels.length);
-        console.log(this.treeLevels);
       }
     }
   }
@@ -71,9 +112,13 @@ export class AppComponent implements OnInit {
 
   openRemoveDialog(employeeId: number, event: MouseEvent) {
     event.stopPropagation();
+    console.log(employeeId);
+
     const employee = this.getEmployeeDetails(employeeId);
+
     if (!employee) return;
-    if (employee.subordinates) return;
+    if (employee.subordinates.length !== 0) return;
+    console.log(employee?.subordinates);
 
     const dialogRef = this.dialog.open(RemoveEmployeeComponent, {
       data: employee,

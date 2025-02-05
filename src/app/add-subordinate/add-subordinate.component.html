@@ -1,1 +1,56 @@
-<p>add-subordinate works!</p>
+<div class="container">
+  <header class="header">
+    <h2 mat-dialog-title>Add Employee</h2>
+    <button mat-icon-button (click)="dialogRef.close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+  <mat-dialog-content>
+    <form  [formGroup]="employeeForm" class="form" (ngSubmit)="onSave()">
+      <mat-form-field class="form__field" appearance="outline">
+        <mat-label>Name</mat-label>
+        <input matInput formControlName="name" required />
+        <mat-error
+        *ngIf="employeeForm.get('name')?.hasError('required')"
+        >
+          Name is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="form__field" appearance="outline">
+        <mat-label>Image URL</mat-label>
+        <input matInput formControlName="imageUrl" type="url" required />
+        <mat-error *ngIf="employeeForm.get('imageUrl')?.hasError('required')">
+          Image URL is required
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="form__field" appearance="outline">
+        <mat-label>Email</mat-label>
+        <input matInput formControlName="email" type="email" required />
+        <mat-error *ngIf="employeeForm.get('email')?.hasError('required')">
+          Email is required
+        </mat-error>
+        <mat-error *ngIf="employeeForm.get('email')?.hasError('email')">
+          Invalid email format
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field class="form__field" appearance="outline">
+        <mat-label>Designation</mat-label>
+        <input matInput formControlName="designation" required />
+        <mat-error
+          *ngIf="employeeForm.get('designation')?.hasError('required')"
+        >
+          Designation is required
+        </mat-error>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+  <mat-dialog-actions class="actions">
+    <button mat-raised-button color="primary" (click)="onSave()">Save</button>
+    <button mat-raised-button color="warn" (click)="dialogRef.close()">
+      Cancel
+    </button>
+  </mat-dialog-actions>
+</div>

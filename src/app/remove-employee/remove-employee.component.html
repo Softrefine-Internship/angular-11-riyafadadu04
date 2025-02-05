@@ -1,1 +1,17 @@
-<p>remove-employee works!</p>
+<div class="container">
+  <header class="header">
+    <h2 mat-dialog-title>Remove Employee</h2>
+    <button mat-icon-button (click)="dialogRef.close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </header>
+  <mat-dialog-content class="content">
+    <p>
+      Are you sure , you want to remove <strong>{{ dialogData.name }}</strong> ?
+    </p>
+  </mat-dialog-content>
+  <mat-dialog-actions class="actions">
+    <button mat-raised-button color="warn" (click)="onRemove()">Remove</button>
+    <button mat-raised-button (click)="dialogRef.close()">Cancel</button>
+  </mat-dialog-actions>
+</div>
