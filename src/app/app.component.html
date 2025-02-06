@@ -69,6 +69,7 @@
             <button
               mat-flat-button
               color="accent"
+              [disabled]="employees.length <= 1 "
               *ngIf="!getEmployeeDetails(empId)?.managerId"
               (click)="openChangeManagerDialog(empId, $event)"
             >

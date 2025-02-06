@@ -2,30 +2,45 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject } from 'rxjs';
 import { Employee } from './employee.model';
+import { environment } from 'src/environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class EmployeeService {
-  public employees = new BehaviorSubject<Employee[]>(this.getStoredEmployees());
+  public employees = new BehaviorSubject<Employee[]>([]);
   employees$ = this.employees.asObservable();
+  private apiUrl = `${environment.apiUrl}/employees.json`;
 
   constructor(private http: HttpClient) {
     this.loadInitialData();
   }
 
-  private getStoredEmployees(): Employee[] {
-    const storedData = localStorage.getItem('employees');
-    return storedData ? JSON.parse(storedData) : [];
+  private loadInitialData() {
+    this.http.get<Employee[]>(this.apiUrl).subscribe((data) => {
+      if (!data || Object.keys(data).length === 0) {
+        this.setDefaultEmployee();
+      } else {
+        let employees = Object.values(data).map((emp) => ({
+          ...emp,
+          subordinates: emp.subordinates ? emp.subordinates : [],
+        }));
+        this.employees.next(employees);
+      }
+    });
   }
 
-  private loadInitialData() {
-    if (this.getStoredEmployees().length === 0) {
-      this.http
-        .get<Employee[]>('/assets/data/employee-data.json')
-        .subscribe((data) => {
-          this.employees.next(data);
-          localStorage.setItem('employees', JSON.stringify(data));
-        });
-    }
+  public setDefaultEmployee() {
+    const defaultEmployee: Employee = {
+      id: 1,
+      name: 'Employee-1',
+      imageUrl:
+        'https://t4.ftcdn.net/jpg/00/65/77/27/240_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg',
+      email: 'employee@example.com',
+      designation: 'Employee',
+      managerId: null,
+      subordinates: [],
+      isExpanded: false,
+    };
+    this.addEmployee(defaultEmployee);
   }
 
   getEmployees() {
@@ -39,12 +54,13 @@ export class EmployeeService {
         (emp) => emp.id === newEmployee.managerId
       );
       if (manager) {
+        manager.subordinates = manager.subordinates || [];
         manager.subordinates.push(newEmployee.id);
       }
     }
     this.setEmployeeExpanded();
     this.employees.next(updatedEmployees);
-    localStorage.setItem('employees', JSON.stringify(updatedEmployees));
+    this.http.put(this.apiUrl, updatedEmployees).subscribe();
   }
 
   removeEmployee(employeeId: number) {
@@ -58,9 +74,10 @@ export class EmployeeService {
         subordinates: emp.subordinates.filter((id) => id !== employeeId),
       };
     });
+
     this.employees.next(updatedEmployees);
     this.setEmployeeExpanded();
-    localStorage.setItem('employees', JSON.stringify(updatedEmployees));
+    this.http.put(this.apiUrl, updatedEmployees).subscribe();
   }
 
   changeManager(employeeId: number, newManagerId: number) {
@@ -84,7 +101,7 @@ export class EmployeeService {
 
     this.setEmployeeExpanded();
     this.employees.next(updatedEmployees);
-    localStorage.setItem('employees', JSON.stringify(updatedEmployees));
+    this.http.put(this.apiUrl, updatedEmployees).subscribe();
   }
 
   getEmployeeById(id: number) {
