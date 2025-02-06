@@ -12,7 +12,15 @@
           *ngIf="getEmployeeDetails(empId)?.managerId"
           [@expandLine]
         ></span>
-        <mat-card (click)="toggleSubordinates(empId)" class="employee__card">
+        <mat-card
+          [ngClass]="{
+            active:
+              getEmployeeDetails(empId)?.isExpanded &&
+              getEmployeeDetails(empId)?.subordinates?.length !== 0
+          }"
+          (click)="toggleSubordinates(empId)"
+          class="employee__card"
+        >
           <mat-card-header class="employee__header">
             <img
               mat-card-avatar
@@ -30,10 +38,13 @@
             <p class="employee__email">
               Email: {{ getEmployeeDetails(empId)?.email }}
             </p>
-            <p *ngIf="getEmployeeDetails(empId)?.managerId">
+            <p
+              class="employee__email"
+              *ngIf="getEmployeeDetails(empId)?.managerId"
+            >
               Manager Id: {{ getEmployeeDetails(empId)?.managerId }}
             </p>
-            <p>
+            <p class="employee__email">
               Subordinates:
               {{ getEmployeeDetails(empId)?.subordinates?.length || 0 }}
             </p>

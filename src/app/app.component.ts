@@ -112,13 +112,11 @@ export class AppComponent implements OnInit {
 
   openRemoveDialog(employeeId: number, event: MouseEvent) {
     event.stopPropagation();
-    console.log(employeeId);
 
     const employee = this.getEmployeeDetails(employeeId);
 
     if (!employee) return;
     if (employee.subordinates.length !== 0) return;
-    console.log(employee?.subordinates);
 
     const dialogRef = this.dialog.open(RemoveEmployeeComponent, {
       data: employee,

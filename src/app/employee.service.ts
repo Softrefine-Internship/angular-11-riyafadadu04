@@ -42,6 +42,7 @@ export class EmployeeService {
         manager.subordinates.push(newEmployee.id);
       }
     }
+    this.setEmployeeExpanded();
     this.employees.next(updatedEmployees);
     localStorage.setItem('employees', JSON.stringify(updatedEmployees));
   }
@@ -58,37 +59,44 @@ export class EmployeeService {
       };
     });
     this.employees.next(updatedEmployees);
+    this.setEmployeeExpanded();
     localStorage.setItem('employees', JSON.stringify(updatedEmployees));
   }
 
   changeManager(employeeId: number, newManagerId: number) {
-    let newManagerData = this.getEmployeeById(employeeId);
-    console.log(newManagerData);
-
     let updatedEmployees = [...this.employees.value];
 
-    const managerIndex = updatedEmployees.findIndex(
-      (emp) => emp.id === newManagerId
-    );
-    const employeeIndex = updatedEmployees.findIndex(
-      (emp) => emp.id === employeeId
-    );
+    const employee = updatedEmployees.find((emp) => emp.id === employeeId);
+    const newManager = updatedEmployees.find((emp) => emp.id === newManagerId);
 
-    if (managerIndex >= 0 && employeeIndex >= 0) {
-      updatedEmployees[managerIndex].subordinates.push(employeeId);
-      console.log(newManagerData?.managerId);
-      updatedEmployees[managerIndex].managerId = newManagerData?.managerId
-        ? newManagerData?.managerId
-        : null;
-      updatedEmployees[employeeIndex].managerId = newManagerId;
+    if (employee && newManager) {
+      [employee.name, newManager.name] = [newManager.name, employee.name];
+      [employee.email, newManager.email] = [newManager.email, employee.email];
+      [employee.imageUrl, newManager.imageUrl] = [
+        newManager.imageUrl,
+        employee.imageUrl,
+      ];
+      [employee.designation, newManager.designation] = [
+        newManager.designation,
+        employee.designation,
+      ];
     }
-    console.log(updatedEmployees);
 
+    this.setEmployeeExpanded();
     this.employees.next(updatedEmployees);
     localStorage.setItem('employees', JSON.stringify(updatedEmployees));
   }
 
   getEmployeeById(id: number) {
     return this.employees.value.find((emp) => emp.id === id);
+  }
+
+  setEmployeeExpanded() {
+    this.employees.next(
+      this.employees.value.map((emp) => {
+        emp.isExpanded = false;
+        return emp;
+      })
+    );
   }
 }
