@@ -35,6 +35,7 @@ import { animate, style, transition, trigger } from '@angular/animations';
 export class AppComponent implements OnInit {
   employees: Employee[] = [];
   hierarchy: Employee[] = [];
+  employeeMap: Map<number, Employee> = new Map();
   treeLevels: number[][] = [];
 
   constructor(
@@ -45,8 +46,14 @@ export class AppComponent implements OnInit {
   ngOnInit(): void {
     this.employeeService.getEmployees().subscribe((data) => {
       this.employees = data;
+      this.buildEmployeeMap();
       this.updateTree();
     });
+  }
+  
+  buildEmployeeMap() {
+    this.employeeMap.clear();
+    this.employees.forEach((emp) => this.employeeMap.set(emp.id, emp));
   }
 
   updateTree() {
@@ -56,6 +63,11 @@ export class AppComponent implements OnInit {
       this.treeLevels.push([manager.id]);
       this.hierarchy = this.buildHierarchy(manager.id);
     }
+    this.employees.forEach((emp) => {
+      if (emp.isExpanded) {
+        this.toggleSubordinates(emp.id, true);
+      }
+    });
   }
 
   buildHierarchy(managerId: number | null): Employee[] {
@@ -66,13 +78,15 @@ export class AppComponent implements OnInit {
     return this.employees.filter((emp) => emp.managerId === managerId);
   }
 
-  toggleSubordinates(empId: number): void {
+  toggleSubordinates(empId: number, preserveState = false): void {
     const employee = this.getEmployeeDetails(empId);
     if (!employee) return;
 
     const index = this.treeLevels.findIndex((level) => level.includes(empId));
 
-    employee.isExpanded = !employee.isExpanded;
+    if (!preserveState) {
+      employee.isExpanded = !employee.isExpanded;
+    }
 
     this.treeLevels[index]?.forEach((id) => {
       if (id !== empId) {
@@ -107,7 +121,14 @@ export class AppComponent implements OnInit {
     event.stopPropagation();
     const manager = this.getEmployeeDetails(managerId);
     if (!manager || manager.subordinates?.length === 5) return;
-    this.dialog.open(AddSubordinateComponent, { data: manager });
+    this.dialog
+      .open(AddSubordinateComponent, { data: manager })
+      .afterClosed()
+      .subscribe((data) => {
+        if (data) {
+          this.updateTree();
+        }
+      });
   }
 
   openRemoveDialog(employeeId: number, event: MouseEvent) {
@@ -122,13 +143,29 @@ export class AppComponent implements OnInit {
       data: employee,
       disableClose: false,
     });
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.updateTree();
+      }
+    });
   }
 
   openChangeManagerDialog(managerId: number, event: MouseEvent) {
     event.stopPropagation();
     const manager = this.getEmployeeDetails(managerId);
-    this.dialog.open(ChangeManagerComponent, {
-      data: manager,
-    });
+    this.dialog
+      .open(ChangeManagerComponent, {
+        data: manager,
+      })
+      .afterClosed()
+      .subscribe((data) => {
+        if (data) {
+          this.updateTree();
+        }
+      });
+  }
+
+  addEmployee() {
+    this.dialog.open(AddSubordinateComponent, { data: null });
   }
 }

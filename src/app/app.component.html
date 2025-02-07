@@ -1,4 +1,4 @@
-<div class="main-container">
+<div class="main-container" *ngIf="employees.length > 0; else noEmployee">
   <div *ngFor="let level of treeLevels; let levelIndex = index">
     <span
       class="line line--h"
@@ -9,14 +9,14 @@
       <div class="employee__wrapper" *ngFor="let empId of level">
         <span
           class="line line--v"
-          *ngIf="getEmployeeDetails(empId)?.managerId"
+          *ngIf="employeeMap.get(empId)?.managerId"
           [@expandLine]
         ></span>
         <mat-card
           [ngClass]="{
             active:
-              getEmployeeDetails(empId)?.isExpanded &&
-              getEmployeeDetails(empId)?.subordinates?.length !== 0
+              employeeMap.get(empId)?.isExpanded &&
+              employeeMap.get(empId)?.subordinates?.length !== 0
           }"
           (click)="toggleSubordinates(empId)"
           class="employee__card"
@@ -25,35 +25,35 @@
             <img
               mat-card-avatar
               class="employee__image"
-              [src]="getEmployeeDetails(empId)?.imageUrl"
+              [src]="employeeMap.get(empId)?.imageUrl"
             />
             <mat-card-title class="employee__name">{{
-              getEmployeeDetails(empId)?.name
+              employeeMap.get(empId)?.name
             }}</mat-card-title>
             <mat-card-subtitle class="employee__designation">{{
-              getEmployeeDetails(empId)?.designation
+              employeeMap.get(empId)?.designation
             }}</mat-card-subtitle>
           </mat-card-header>
           <mat-card-content class="employee__content">
             <p class="employee__email">
-              Email: {{ getEmployeeDetails(empId)?.email }}
+              Email: {{ employeeMap.get(empId)?.email }}
             </p>
             <p
               class="employee__email"
-              *ngIf="getEmployeeDetails(empId)?.managerId"
+              *ngIf="employeeMap.get(empId)?.managerId"
             >
-              Manager Id: {{ getEmployeeDetails(empId)?.managerId }}
+              Manager Id: {{ employeeMap.get(empId)?.managerId }}
             </p>
             <p class="employee__email">
               Subordinates:
-              {{ getEmployeeDetails(empId)?.subordinates?.length || 0 }}
+              {{ employeeMap.get(empId)?.subordinates?.length || 0 }}
             </p>
           </mat-card-content>
           <mat-card-actions class="employee__actions">
             <button
               mat-flat-button
               color="primary"
-              [disabled]="getEmployeeDetails(empId)?.subordinates?.length === 5"
+              [disabled]="employeeMap.get(empId)?.subordinates?.length === 5"
               (click)="openAddSubordinateDialog(empId, $event)"
             >
               Add
@@ -61,7 +61,7 @@
             <button
               mat-flat-button
               color="warn"
-              [disabled]="getEmployeeDetails(empId)?.subordinates?.length !== 0"
+              [disabled]="employeeMap.get(empId)?.subordinates?.length !== 0"
               (click)="openRemoveDialog(empId, $event)"
             >
               Remove
@@ -69,8 +69,8 @@
             <button
               mat-flat-button
               color="accent"
-              [disabled]="employees.length <= 1 "
-              *ngIf="!getEmployeeDetails(empId)?.managerId"
+              [disabled]="employees.length <= 1"
+              *ngIf="!employeeMap.get(empId)?.managerId"
               (click)="openChangeManagerDialog(empId, $event)"
             >
               Change
@@ -80,8 +80,8 @@
         <span
           class="line line--v"
           *ngIf="
-            getEmployeeDetails(empId)?.isExpanded &&
-            getEmployeeDetails(empId)?.subordinates?.length !== 0
+            employeeMap.get(empId)?.isExpanded &&
+            employeeMap.get(empId)?.subordinates?.length !== 0
           "
           [@expandLine]
         ></span>
@@ -89,3 +89,11 @@
     </div>
   </div>
 </div>
+
+<ng-template #noEmployee>
+  <div class="container">
+    <button color="primary" mat-flat-button (click)="addEmployee()">
+      Add Employee
+    </button>
+  </div>
+</ng-template>

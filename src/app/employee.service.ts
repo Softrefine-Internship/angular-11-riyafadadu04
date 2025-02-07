@@ -16,31 +16,12 @@ export class EmployeeService {
 
   private loadInitialData() {
     this.http.get<Employee[]>(this.apiUrl).subscribe((data) => {
-      if (!data || Object.keys(data).length === 0) {
-        this.setDefaultEmployee();
-      } else {
-        let employees = Object.values(data).map((emp) => ({
-          ...emp,
-          subordinates: emp.subordinates ? emp.subordinates : [],
-        }));
-        this.employees.next(employees);
-      }
+      let employees = Object.values(data).map((emp) => ({
+        ...emp,
+        subordinates: emp.subordinates ? emp.subordinates : [],
+      }));
+      this.employees.next(employees);
     });
-  }
-
-  public setDefaultEmployee() {
-    const defaultEmployee: Employee = {
-      id: 1,
-      name: 'Employee-1',
-      imageUrl:
-        'https://t4.ftcdn.net/jpg/00/65/77/27/240_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg',
-      email: 'employee@example.com',
-      designation: 'Employee',
-      managerId: null,
-      subordinates: [],
-      isExpanded: false,
-    };
-    this.addEmployee(defaultEmployee);
   }
 
   getEmployees() {
@@ -58,7 +39,7 @@ export class EmployeeService {
         manager.subordinates.push(newEmployee.id);
       }
     }
-    this.setEmployeeExpanded();
+
     this.employees.next(updatedEmployees);
     this.http.put(this.apiUrl, updatedEmployees).subscribe();
   }
@@ -76,7 +57,6 @@ export class EmployeeService {
     });
 
     this.employees.next(updatedEmployees);
-    this.setEmployeeExpanded();
     this.http.put(this.apiUrl, updatedEmployees).subscribe();
   }
 
@@ -99,21 +79,11 @@ export class EmployeeService {
       ];
     }
 
-    this.setEmployeeExpanded();
     this.employees.next(updatedEmployees);
     this.http.put(this.apiUrl, updatedEmployees).subscribe();
   }
 
   getEmployeeById(id: number) {
     return this.employees.value.find((emp) => emp.id === id);
-  }
-
-  setEmployeeExpanded() {
-    this.employees.next(
-      this.employees.value.map((emp) => {
-        emp.isExpanded = false;
-        return emp;
-      })
-    );
   }
 }

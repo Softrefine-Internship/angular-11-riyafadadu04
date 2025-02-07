@@ -31,7 +31,7 @@
       box-shadow: 0 10px 20px #00000026;
     }
 
-    &.active{
+    &.active {
       background: #85e5f8;
       box-shadow: 0 10px 20px #00000026;
     }
@@ -60,4 +60,13 @@
     height: 20px;
     background-color: #233034;
   }
+}
+
+.container {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }

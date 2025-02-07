@@ -26,10 +26,10 @@ export class AddSubordinateComponent implements OnInit {
     });
 
     this.employeeForm = new FormGroup({
-      name: new FormControl('', [Validators.required]),
-      imageUrl: new FormControl('', [Validators.required]),
-      email: new FormControl('', [Validators.required, Validators.email]),
-      designation: new FormControl('', [Validators.required]),
+      name: new FormControl('Employee-', [Validators.required]),
+      imageUrl: new FormControl('https://t4.ftcdn.net/jpg/00/65/77/27/240_F_65772719_A1UV5kLi5nCEWI0BNLLiFaBPEkUbv5Fv.jpg', [Validators.required]),
+      email: new FormControl('employee@example.com', [Validators.required, Validators.email]),
+      designation: new FormControl('Employee', [Validators.required]),
     });
   }
 
